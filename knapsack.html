@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<style>
+    body {
+        width: 40%;
+        margin: 0 auto;
+        height: 100%;
+        padding-bottom: 20px;
+    }
+
+    * {
+        margin-right: 0;
+    }
+
+
+    h1 {
+        text-align: center;
+    }
+
+    p {
+        font-size: 16px;
+    }
+
+    section {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+    }
+
+    section * {
+        margin: 10px 0;
+    }
+
+    table {
+        border-collapse: collapse;
+    }
+
+    tr,
+    td {
+        padding: 3px;
+        border: 1px solid;
+    }
+
+    .Knapsack td:nth-child(1),
+    .item td {
+        background-color: rgb(226, 239, 217);
+    }
+
+    input {
+        width: 200px;
+        min-height: 20px;
+        padding: 5px;
+        margin: 3px 0;
+    }
+
+    button {
+        width: 100px;
+    }
+
+    strong {
+        color: green
+    }
+</style>
+
+<body id="body">
+    <section>
+        <h1>Knapsack problem</h1>
+        <p>武吉郎最喜歡吃名貴食材了！他雖然有錢，但小氣又小鳥胃，所以他決定改名為『武吉郎愛吃鮭魚鮪魚旗魚鮮蝦甜蝦干貝鮑魚海膽和牛松葉蟹大閘蟹龍蝦』，他要如何在吃飽前，吃到最貴的價錢，獲取最大的利益（規定重量內，最高的價錢）。
+        </p>
+        <table class="Knapsack" style="width: 100%;text-align: center;">
+            <tr class="item" style="background-color: rgb(226,239,217);">
+                <td>食材名稱 </td>
+                <td>Salmon</td>
+                <td>Tuna</td>
+                <td>Istiophoridae</td>
+                <td>Fenneropenaeus</td>
+            </tr>
+            <tr>
+                <td>食品重量</td>
+                <td>153</td>
+                <td>260</td>
+                <td>67</td>
+                <td>93</td>
+            </tr>
+            <tr>
+                <td>食品價錢</td>
+                <td>253</td>
+                <td>530</td>
+                <td>153</td>
+                <td>196</td>
+            </tr>
+            <tr class="item">
+                <td>食材名稱</td>
+                <td>Borealis</td>
+                <td>Adductor</td>
+                <td>Haliotis</td>
+                <td>Gratilla</td>
+            </tr>
+            <tr>
+                <td>食品重量</td>
+                <td>152</td>
+                <td>50</td>
+                <td>58</td>
+                <td>13</td>
+            </tr>
+            <tr>
+                <td>食品價錢</td>
+                <td>250</td>
+                <td>87</td>
+                <td>191</td>
+                <td>33</td>
+            </tr>
+            <tr class="item">
+                <td>食材名稱</td>
+                <td>Kuroge</td>
+                <td>Chionoecetes</td>
+                <td>Eriocheir</td>
+                <td>Palinuridae</td>
+            </tr>
+            <tr>
+                <td>食品重量</td>
+                <td>166</td>
+                <td>77</td>
+                <td>151</td>
+                <td>60</td>
+            </tr>
+            <tr>
+                <td>食品價錢</td>
+                <td>431</td>
+                <td>90</td>
+                <td>180</td>
+                <td>100</td>
+            </tr>
+        </table>
+        <input id="capacity" type="text" placeholder="胃容量（&lt;=2000）" value="670" required></input>
+        <input id="food" type="text" placeholder="喜歡吃的食材" value="Salmon,Tuna,Fenneropenaeus,Gratilla,Kuroge"
+            required></input>
+        <button id="enter">確認</button>
+    </section>
+    <section id="answer">
+    </section>
+</body>
+<script>
+    const total = {
+        Salmon: {
+            weight: 153,
+            price: 253
+        }, Tuna: {
+            weight: 260,
+            price: 530
+        }, Istiophoridae: {
+            weight: 67,
+            price: 153
+        }, Fenneropenaeus: {
+            weight: 93,
+            price: 196
+        }, Borealis: {
+            weight: 152,
+            price: 250
+        }, Adductor: {
+            weight: 50,
+            price: 87
+        }, Haliotis: {
+            weight: 58,
+            price: 191
+        }, Gratilla: {
+            weight: 13,
+            price: 33
+        }, Kuroge: {
+            weight: 166,
+            price: 431
+        }, Chionoecetes: {
+            weight: 70,
+            price: 90
+        }, Eriocheir: {
+            weight: 151,
+            price: 180
+        }, Palinuridae: {
+            weight: 60,
+            price: 100
+        }
+    }
+    //const size = ["Salmon","Tuna","Istiophoridae","Fenneropenaeus","Borealis","Adductor","Haliotis","Gratilla","Kuroge"]
+    function sort_by_key(array, key) {
+        return array.sort(function (a, b) {
+            var x = a[key]; var y = b[key];
+            return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+        });
+    }
+    const begin = "<table>"
+    const end = "</table>"
+
+    document.getElementById('enter').onclick = function () {
+        document.getElementById('answer').innerHTML =""
+        
+        const tmp = document.getElementById("food").value;
+        const m = document.getElementById("capacity").value;
+
+        if (tmp == '' || m == '') {
+            alert('資料未填完整')
+        }
+        const list = tmp.replace(' ', '').split(',')
+
+        let arr = []
+        for (let k = 0; k < list.length; k++) {
+            var item = { name: list[k], size: total[list[k]].weight, value: total[list[k]].price, num: 0 }
+            arr.push(item)
+
+            if (arr.length > 1) {
+                arr = sort_by_key(arr, 'size')
+            }
+
+
+            let cost = []
+            let best = []
+            for (let h = 0; h < m; h++) {
+                cost.push(0)
+                best.push('')
+            }
+            for (let j = 0; j < arr.length; j++) {
+                for (let i = 0; i < m; i++) {
+                    //若剩餘空間塞得下物品
+                    if (i - arr[j].size >= 0) {
+                        if (cost[i] < (cost[i - arr[j].size] + arr[j].value)) {
+                            cost[i] = cost[i - arr[j].size] + arr[j].value
+                            best[i] = arr[j].name;
+
+                        }
+                    }
+                }
+            }
+            let p = m - 1
+            let bag = []
+            let most = 0
+            let time = {}
+            while (p - arr[0].size > 0) {
+                //console.log(best[p], p)
+                bag.push(best[p])
+                most += total[best[p]].price
+                if (k == list.length - 1) {
+                    if (time[best[p]]) {
+                        time[best[p]]++
+                    } else {
+                        time[best[p]] = 1
+                    }
+                }
+                if (total[best[p]].weight == undefined || total[best[p]].weight == null) break
+
+                p -= total[best[p]].weight
+            }
+
+
+            bag = bag.reverse()
+
+
+            let htmltxt = ""
+            for (let i = 0; i < bag.length; i++) {
+                //console.log(i)
+                if (i % 5 == 0 && i != bag.length - 1) {
+                    htmltxt += "<tr/><td/>" + bag[i] + "</td>"
+                } else if (i % 5 == 0 && i == bag.length - 1) {
+                    htmltxt += "<tr/><td/>" + bag[i] + "</td></tr>"
+                } else if (i % 5 == 4 && i != bag.length - 1 || i == bag.length - 1) {
+                    htmltxt += "<td/>" + bag[i] + "</td></tr>"
+                } else {
+                    htmltxt += "<td/>" + bag[i] + "</td>"
+                }
+            }
+            //console.log(htmltxt)
+            document.getElementById('answer').innerHTML += "<p>" + "僅考慮" + "<strong>" + list.slice(0, arr.length).join('、') + "</strong></p >"
+            document.getElementById('answer').innerHTML += begin + htmltxt + end
+
+
+            if (k == list.length - 1) {
+                let take = ""
+                for (var prop in time) {
+                    if (time[prop] > 0) {
+                        take += prop + " " + time[prop] + " 個 "
+                    }
+                }
+
+                document.getElementById('answer').innerHTML += "<hr/>"
+                document.getElementById('answer').innerHTML += "<p>" + "當背包大小為 " + m + ",拿 " + take + ",得總價值 " + most + "</p>"
+                document.getElementById('answer').innerHTML += "<hr/>"
+            }
+        }
+
+
+    };
+</script>
+
+</html>
